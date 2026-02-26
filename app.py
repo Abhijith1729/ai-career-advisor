@@ -1,9 +1,15 @@
 import streamlit as st
-from google import genai
+import requests
 import os
 
-# create client
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Get HuggingFace token from Streamlit secrets
+HF_TOKEN = st.secrets["HF_TOKEN"]
+
+API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}"
+}
 
 st.title("AI Career Advisor")
 
@@ -12,7 +18,7 @@ skills = st.text_input("Enter your skills:")
 if st.button("Get Advice"):
 
     if not skills:
-        st.warning("Please enter skills")
+        st.warning("Please enter your skills.")
         st.stop()
 
     prompt = f"""
@@ -22,17 +28,27 @@ Suggest:
 2. Required skills
 3. Learning roadmap
 
-for skills: {skills}
+for these skills: {skills}
 """
 
+    payload = {
+        "inputs": prompt,
+        "max_length": 500
+    }
+
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
+        with st.spinner("Generating advice..."):
+            response = requests.post(API_URL, headers=headers, json=payload)
+
+            result = response.json()
+
+            if isinstance(result, list):
+                output = result[0]["generated_text"]
+            else:
+                output = str(result)
 
         st.subheader("AI Advice:")
-        st.write(response.text)
+        st.write(output)
 
     except Exception as e:
-        st.error(str(e))
+        st.error(f"Error: {e}")
