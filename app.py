@@ -1,12 +1,9 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 import os
 
-# configure API key
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-# use correct model
-model = genai.GenerativeModel("gemini-1.5-flash")
+# create client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 st.title("AI Career Advisor")
 
@@ -29,7 +26,11 @@ for skills: {skills}
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
+
         st.subheader("AI Advice:")
         st.write(response.text)
 
