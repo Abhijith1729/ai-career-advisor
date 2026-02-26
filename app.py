@@ -25,9 +25,9 @@ For these skills: {skills}
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
+        model="gemini-1.5-flash-latest",
+        contents=prompt,
+    )
         result = response.text
     except Exception as e:
         result = f"Error: {e}"
