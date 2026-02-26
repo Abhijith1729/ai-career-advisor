@@ -3,10 +3,11 @@ import requests
 
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
-API_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2"
+API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-base"
 
 headers = {
-    "Authorization": f"Bearer {HF_TOKEN}"
+    "Authorization": f"Bearer {HF_TOKEN}",
+    "Content-Type": "application/json"
 }
 
 st.title("AI Career Advisor")
@@ -26,4 +27,4 @@ if st.button("Get Advice"):
             st.subheader("AI Advice:")
             st.write(result)
         else:
-            st.error(f"HF Error: {response.status_code}")
+            st.error(response.text)
