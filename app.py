@@ -15,20 +15,18 @@ if st.button("Get Advice"):
         st.stop()
 
     prompt = f"""
-Suggest:
-1. Career roles
-2. Required skills
-3. Learning roadmap
-
-For these skills: {skills}
+Suggest career roles, required skills, and learning roadmap
+for these skills: {skills}
 """
 
     try:
         response = client.models.generate_content(
-        model="gemini-1.5-flash-latest",
-        contents=prompt,
-    )
+            model="gemini-2.0-flash-exp",
+            contents=prompt,
+        )
+
         result = response.text
+
     except Exception as e:
         result = f"Error: {e}"
 
