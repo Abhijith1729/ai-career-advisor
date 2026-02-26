@@ -3,7 +3,11 @@ import requests
 
 HF_TOKEN = st.secrets.get("HF_TOKEN")
 
-API_URL = "https://router.huggingface.co/hf-inference/models/microsoft/DialoGPT-medium"
+if not HF_TOKEN:
+    st.error("HF_TOKEN not found in Streamlit Secrets.")
+    st.stop()
+
+API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-base"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -16,7 +20,7 @@ skills = st.text_input("Enter your skills:")
 if st.button("Get Advice"):
 
     if not skills:
-        st.warning("Please enter skills")
+        st.warning("Please enter skills.")
         st.stop()
 
     prompt = f"""
@@ -25,16 +29,34 @@ Suggest:
 2. Required skills
 3. Learning roadmap
 
-for these skills: {skills}
+for skills: {skills}
 """
 
     payload = {
-        "inputs": prompt
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 300
+        }
     }
 
-    response = requests.post(API_URL, headers=headers, json=payload)
+    try:
+        with st.spinner("Generating advice..."):
+            response = requests.post(API_URL, headers=headers, json=payload)
 
-    result = response.json()
+            # If HF returns error page instead of JSON
+            if response.status_code != 200:
+                st.error(f"HF Error: {response.text}")
+                st.stop()
 
-    st.subheader("AI Advice:")
-    st.write(result)
+            result = response.json()
+
+            if isinstance(result, list):
+                output = result[0]["generated_text"]
+            else:
+                output = str(result)
+
+        st.subheader("AI Advice:")
+        st.write(output)
+
+    except Exception as e:
+        st.error(f"Error: {e}")
