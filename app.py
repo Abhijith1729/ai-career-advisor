@@ -6,8 +6,7 @@ HF_TOKEN = st.secrets["HF_TOKEN"]
 API_URL = "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2"
 
 headers = {
-    "Authorization": f"Bearer {HF_TOKEN}",
-    "Content-Type": "application/json"
+    "Authorization": f"Bearer {HF_TOKEN}"
 }
 
 st.title("AI Career Advisor")
@@ -15,17 +14,16 @@ st.title("AI Career Advisor")
 skills = st.text_input("Enter your skills:")
 
 if st.button("Get Advice"):
+    if skills:
+        payload = {
+            "inputs": f"Suggest career roles and roadmap for these skills: {skills}"
+        }
 
-    prompt = f"Suggest career paths and roadmap for someone with skills: {skills}"
+        response = requests.post(API_URL, headers=headers, json=payload)
 
-    payload = {
-        "inputs": prompt
-    }
-
-    response = requests.post(API_URL, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        st.error(f"HF Error: {response.text}")
-    else:
-        result = response.json()
-        st.write(result[0]["generated_text"])
+        if response.status_code == 200:
+            result = response.json()[0]["generated_text"]
+            st.subheader("AI Advice:")
+            st.write(result)
+        else:
+            st.error(f"HF Error: {response.status_code}")
