@@ -2,8 +2,15 @@ import streamlit as st
 import google.generativeai as genai
 import os
 
-# Configure Gemini API key (read from environment variable)
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Get API key
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("GEMINI_API_KEY not found. Please set it in environment variables.")
+    st.stop()
+
+# Configure Gemini
+genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -13,15 +20,25 @@ skills = st.text_input("Enter your skills:")
 
 if st.button("Get Advice"):
 
-    if skills:
+    if not skills:
+        st.warning("Please enter your skills.")
+        st.stop()
 
-        prompt = f"Suggest career roles and a learning roadmap for these skills: {skills}"
+    prompt = f"""
+    Suggest:
+    1. Career roles
+    2. Required skills
+    3. Learning roadmap
 
+    for these skills: {skills}
+    """
+
+    with st.spinner("Generating advice..."):
         try:
             response = model.generate_content(prompt)
             result = response.text
         except Exception as e:
-            result = f"Error generating response: {e}"
+            result = f"Error: {e}"
 
-        st.subheader("AI Advice:")
-        st.write(result)
+    st.subheader("AI Advice:")
+    st.write(result)
