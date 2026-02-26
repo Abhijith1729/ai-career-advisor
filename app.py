@@ -3,7 +3,7 @@ import requests
 
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
-API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-base"
+API_URL = "https://router.huggingface.co/hf-inference/models/microsoft/DialoGPT-medium"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}",
@@ -17,25 +17,14 @@ skills = st.text_input("Enter your skills:")
 if st.button("Get Advice"):
     if skills:
         payload = {
-            "inputs": f"Suggest career roles and roadmap for these skills: {skills}",
-            "parameters": {
-                "max_new_tokens": 200,
-                "temperature": 0.7
-            }
+            "inputs": f"Suggest career roles and roadmap for these skills: {skills}"
         }
 
         response = requests.post(API_URL, headers=headers, json=payload)
 
         if response.status_code == 200:
-            data = response.json()
-
-            if isinstance(data, list):
-                result = data[0].get("generated_text", str(data))
-            else:
-                result = str(data)
-
+            result = response.json()[0]["generated_text"]
             st.subheader("AI Advice:")
             st.write(result)
-
         else:
             st.error(response.text)
