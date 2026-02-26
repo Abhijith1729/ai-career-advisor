@@ -1,8 +1,10 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 import os
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.title("AI Career Advisor")
 
@@ -11,22 +13,22 @@ skills = st.text_input("Enter your skills:")
 if st.button("Get Advice"):
 
     if not skills:
-        st.warning("Please enter your skills.")
+        st.warning("Please enter skills")
         st.stop()
 
     prompt = f"""
-Suggest career roles, required skills, and learning roadmap
-for these skills: {skills}
+Suggest:
+
+1. Career roles  
+2. Required skills  
+3. Learning roadmap  
+
+for skills: {skills}
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp",
-            contents=prompt,
-        )
-
+        response = model.generate_content(prompt)
         result = response.text
-
     except Exception as e:
         result = f"Error: {e}"
 
