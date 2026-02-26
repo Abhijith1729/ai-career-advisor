@@ -7,7 +7,7 @@ if not HF_TOKEN:
     st.error("HF_TOKEN not found in Streamlit Secrets.")
     st.stop()
 
-API_URL = "https://router.huggingface.co/hf-inference/models/google/flan-t5-base"
+API_URL = "https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -33,11 +33,12 @@ for skills: {skills}
 """
 
     payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 300
-        }
+    "inputs": f"<|user|>\n{prompt}\n<|assistant|>",
+    "parameters": {
+        "max_new_tokens": 300,
+        "temperature": 0.7
     }
+}
 
     try:
         with st.spinner("Generating advice..."):
